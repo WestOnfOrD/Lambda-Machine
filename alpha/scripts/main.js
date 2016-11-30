@@ -2,6 +2,10 @@
 var nodeListingTable=null;
 var selectedScript=null;
 var selectedNode=null;
+var global_set = new Set();
+var bootleg_hack;
+
+
 // initializes javascript after the required HTML elements are in place
 function init(){
   _("Initializing");
@@ -11,17 +15,18 @@ function init(){
   getNodeListing();
   // getOutputListing();
   updatePage("scripts");
+
   // loops
-  setInterval(getNodeListing, 5000)
+  setInterval(monitorNodeListing, 5000)
   _("Initializing finished");
 }
 // color selected element
 function colorSelected(hierarchyTree, elem){
-  var rows = hierarchyTree.childNodes[0].getElementsByTagName("tr");
+  /*var rows = hierarchyTree.childNodes[0].getElementsByTagName("tr");
   for (i = 0; i < rows.length; i++) {
-    rows[i].style.backgroundColor = "";
-  }
-  elem.style.backgroundColor = "lightBlue";
+    rows[i].style.backgroundColor = "#1c1c1c";
+  }*/
+
 }
 // called when the eye is clicked. This updates the content view div with the file's content.
 function contentView_script(fileName){
@@ -80,6 +85,8 @@ function run(fileName){
     nodeListingTable=DOM_Table;
   });
 }
+
+
 // jobs for minions
 function submitJob(){
   _("Prepairing to submit job.");
@@ -94,28 +101,42 @@ function submitJob(){
   // message_JSON.script=[];
   message_JSON.script=selectedScript;
   if(message_JSON.nodes.length > 0){
+    /*
+    for (var i = 0; i < message_JSON.nodes.length; i++){
+      addScriptToGraph(selectedScript, message_JSON.nodes[i]);
+    }*/
+    
     xhrPost("/submitToMaster",JSON.stringify(message_JSON), function(xhr){
       var hash = xhr.responseText;
-        _("Hash of file : " + xhr.responseText)
-        genOutputTextBoxes(hash)
-    });
+      for (var i = 0; i < message_JSON.nodes.length; i++){
+      addScriptToGraph(selectedScript, message_JSON.nodes[i], hash);
+      }
+
+        _("Hash of file : " + xhr.responseText);
+    //});
+    var els=Array.prototype.slice.call(nodeListingTable.getElementsByTagName("tr")).slice(1);
+  els.forEach(function( elem){
+    if(elem.getElementsByTagName("td")[0].getElementsByTagName("input")[0].checked){
+      var nodeName = elem.getElementsByTagName("td")[1].getElementsByTagName("p")[0].innerHTML;
+      //var nodeNum = nodeName.replace(/.*\./, "");
+      genOutputTextBoxes(hash, "contentView_script", nodeName);
+    }
+  });});
   }
   else{
     _("No nodes specified.");
   }
 }
 // create output boxes for viewing script outputs
-function genOutputTextBoxes(hash){
+function genOutputTextBoxes(hash, dom_id, minion_name){
+  var nodeNum = minion_name.replace(/.*\./, "");
   var curScript = selectedScript
-  var conView = $("contentView_script")
+  var conView = $(dom_id);
   var logsBoxes=[]
-  var els=Array.prototype.slice.call(nodeListingTable.getElementsByTagName("tr")).slice(1);
-  els.forEach(function( elem){
-    if(elem.getElementsByTagName("td")[0].getElementsByTagName("input")[0].checked){
-      var nodeName = elem.getElementsByTagName("td")[1].getElementsByTagName("p")[0].innerHTML
-      var nodeNum = nodeName.replace(/.*\./, "");
       // var DOM_table=createAppend("div",conView, [["float","left"],["width","30%"],["height","30%"]]);
-      createAppend("p",conView).innerHTML=nodeName;
+      createAppend("p",conView).innerHTML="&lambda;<sub>" + 
+          minion_name.substr(minion_name.length - 1) + "</sub>"
+              + "<sup>" + selectedScript + "</sup>";
       var DOM_Table=createAppend("table",conView);
       var tr=createAppend("tr",DOM_Table);
       createAppend("td",tr).innerHTML="stdout";
@@ -124,8 +145,8 @@ function genOutputTextBoxes(hash){
       var td1=createAppend("td",tr);
       var td2=createAppend("td",tr);
 
-      var DOM_logBoxStdout=createAppend("textarea",td1,[["disabled"]]);
-      var DOM_logBoxStderr=createAppend("textarea",td2,[["disabled"]]);
+      var DOM_logBoxStdout=createAppend("textarea",td1,[["disabled"],["style", "color: #fffaef; background-color: rgba(28,28,28,.5)"]]);
+      var DOM_logBoxStderr=createAppend("textarea",td2,[["disabled"],["style", "color: #fffaef; background-color: rgba(28,28,28,.5);"]]);
       // stdout
       var stdOutWorker = new Worker('scripts/databaseWorker.js');
       stdOutWorker.onmessage = function(e) {
@@ -138,8 +159,6 @@ function genOutputTextBoxes(hash){
         DOM_logBoxStderr.value+=e.data
       }
       stdErrWorker.postMessage([hash,nodeNum, "stderr"]);
-    }
-  });
 }
 // updates the heirarchy view with the scripts found in the python server's codescrolls directory
 function getScriptListing(){
@@ -148,6 +167,7 @@ function getScriptListing(){
     var hierarchyTree = $('r2c1_scripts');
     hierarchyTree.innerHTML = xhr.response;
     var aList = [].slice.call(hierarchyTree.getElementsByTagName("a"));
+
     if(aList.length > 0){
       _("Found more then zero listings. Updating hierarchy view")
       var newHierarchyTree = document.createElement("table");
@@ -194,8 +214,23 @@ function getScriptListing(){
     _("Got new script listing");
   });
 }
-// updates the heirarchy view with the scripts found in the python server's codescrolls directory
+function monitorNodeListing(){
+  var comparison_set = new Set();
+  xhrGet("/nodes", function(xhr) {
+    listing=parseJSON(xhr.response);
+    listing.forEach(function(element, index, array){
+      if(global_set.has(element.name))
+        comparison_set.add(element.name);
+      else
+        getNodeListing();
+    })
+    if (comparison_set.size != global_set.size)
+      getNodeListing();
+  });
+}
+// updates the heirarchy view with the nodes logged within elasticsearch database.
 function getNodeListing(){
+  global_set.clear();
   SecondsToNodeLoss=100
   // _("Getting node listing");
   xhrGet("/nodes", function (xhr) {
@@ -203,12 +238,19 @@ function getNodeListing(){
     listing=parseJSON(xhr.response); // got json object of nodes
     if( ! listing){
       hierarchyTree.innerHTML="Connection Broken";
+      global_set.clear();
       return
     }
+
     // _("Nodes Found: ")
     var newHierarchyTree = document.createElement("table");
     var epochTime = (new Date).getTime();
     listing.forEach(function(element, index, array){
+      global_set.add(element.name);
+
+      // add element to d3 node list for graph visualization
+      var color_int = addNodeToGraph(element.name, index);
+
       // create table elements
       var tr  = document.createElement("tr")
       var td_view  = document.createElement("td");
@@ -225,7 +267,7 @@ function getNodeListing(){
       var stat = document.createElement("div");
       // setup internal html elements
       let imgSize = "20px";
-      tr  .setAttribute("id", element.name);
+      tr  .setAttribute("id", element.name + "-table0");
       text.setAttribute("style", "text-align: left;");
       view.setAttribute("style", "text-align : left;");
       view.setAttribute("src", "/res/view.png");
@@ -234,21 +276,25 @@ function getNodeListing(){
       stat.setAttribute("class",      "circle");
       // status indicator
       deltaT=Math.floor(epochTime/1000-element.time);
+
       redFactor=deltaT/SecondsToNodeLoss; // BUG : not changeing color
       if(redFactor > 1){
         redFactor = 1;
       }
-      red     = Math.floor(255 * redFactor)
-      green   = Math.floor(255 * (1-redFactor) )
-      stat.style.background="rgb("+red+","+green+",0)"
+      //red     = Math.floor(255 * redFactor)
+      //green   = Math.floor(255 * (1-redFactor) )
+      stat.style.border ="5px solid" + ridiculousColorPickingFunction(color_int);
+      stat.style.background="#1c1c1c";
+
       // text field
       text.innerHTML = element.name;
       text.style.width="100%"
-      view.setAttribute("onclick", "contentView_nodes('" + element.name + "')");
+      //tr.setAttribute("onclick", "contentView_nodes('" + element.name + "-table0" + "')");
       td_view.appendChild(view);
       td_text.appendChild(text);
       td2_stat.appendChild(stat);
     });
+    
     // _("Cleaning pre existing hierarchy tree")
     while (hierarchyTree.firstChild) {
       hierarchyTree.removeChild(hierarchyTree.firstChild);
@@ -260,6 +306,7 @@ function getNodeListing(){
     _("Got new node listing");
     _(listing)
   });
+
 }
 // change view
 function updatePage(page){
@@ -267,5 +314,7 @@ function updatePage(page){
   pages.forEach(function(element, index, array){
     element.style.visibility= "hidden";
   });
+  if(page == "nodes")
+    bootleg_hack = buildForceGraph();
   $(page).style.visibility= "visible";
 }

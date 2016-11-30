@@ -1,4 +1,7 @@
 body {
+    color: #75715E;
+    font-family: "Lucida Console", Monaco, monospace;
+
     margin: 0px;
     padding: 0px;
     overflow: hidden;
@@ -6,12 +9,13 @@ body {
 div{
     border-style: solid;
     border-width: 1px;
-	-webkit-box-sizing: border-box; /* remove div offsets due to boarder width */
+        -webkit-box-sizing: border-box;
     margin: 0px;
     padding: 0px;
     width: 100%;
-    height: 100%;
+    height: 5vh;
 }
+
 /* Upload Button */
 #fileInputButton{
     width: 100%;
@@ -20,19 +24,19 @@ div{
     opacity: 0;
 }
 #fileInputButtonDiv{
-    background-color: #428F89;
+    background-color: #272822;
     margin-left:auto;
     margin-right:auto;
     width: 100%;
     height: 5vh;
 }
 .contentView{
-    background-color: #805489;
-    overflow: scroll;
+    background-color: #272822;
     margin-left:auto;
     margin-right:auto;
     width: 100%;
-    height: 85vh;
+    height: 90vh;
+    border-bottom: none;
 }
 #fileInputButtonP {
     -webkit-touch-callout: none;
@@ -52,7 +56,7 @@ div{
 	   R1
    ==================   */
 #r1{ /*title bar*/
-    background-color: #B08B0D;
+    background-color: #272822;
     position: fixed;
     top: 0px;
     left: 0px;
@@ -67,25 +71,26 @@ div{
     position: fixed;
     top: 10vh;
     left: 0px;
-    height: 90vh;
+    height: 85vh;
     width:  100%;
 }
 /* ==================
 	   R2C1
    ==================   */
 .r2c1{ /*hierarcy*/
-    background-color: #97282C;
+    background-color: #272822;
     overflow: auto;
     position: fixed;
     top: 10vh;
     left: 0px;
-    height: 90vh;
-    width:  30vw;
+    height: 100%;
+    width:  15vw;
 }
 .r2c1 table {
     border-spacing: 0;
-    width: 100%;
+    /*width: 100%;*/
     margin: 0px;
+    overflow:auto;
 }
 .r2c1 table tr, td {
     padding: 2px;
@@ -93,10 +98,11 @@ div{
 }
 .r2c1 td {
     word-break:break-all;
-    border-bottom:1pt solid black;
+    border-bottom:1pt;
     margin: 0px;
 }
 .r2c1 p {
+    color: #AE81FF;
     margin: 2px;
 }
 
@@ -105,10 +111,11 @@ div{
    ==================   */
 .r2c2 table {
     border-spacing: 0;
-    border-right:1pt solid black;
-    border-top:1pt solid black;
+    border-right:1pt;
+    border-top:1pt;
     /*width: 100%;*/
     text-align: center;
+    overflow: auto;
     margin: 0px;
 }
 .r2c2 table tr, td {
@@ -116,28 +123,32 @@ div{
 }
 .r2c2 td {
     word-break:break-all;
-    border-bottom:1pt solid black;
-    border-left:1pt solid black;
+    border-bottom:1pt;
+    border-left:1pt;
 }
 .r2c2 p {
+    color: #AE81FF;
     margin: 2px;
 }
 .r2c2 h1 {
+    color: #66D9EF;
     margin: 2px;
 }
 .r2c2{ /*main container*/
-    background-color: #805489;
+    background-color: #272822;
     position: fixed;
     top: 10vh;
-    left: 30vw;
-    height: 100%;
-    width:  70vw;
+    left: 15vw;
+    height: 90vh;
+    width:  85vw;
+    /*width: 100%;*/
     margin: 0px;
     padding: 0px;
+    overflow:auto;
 }
 .r2c2>*{
     margin: 0px;
-    padding: 4px;
+    padding: 4px rgb(119, 17, 221);
 }
 
 /* ==================
@@ -160,5 +171,20 @@ div{
       -webkit-border-radius: 20px;
       -moz-border-radius: 20px;
       border-radius: 20px;
-      background: red;
+      /*background: red;*/
     }
+
+/* ==================
+        Graph Objects
+   ==================   */
+
+.links line {
+    stroke: #999;
+    stroke-opacity:0.6;
+}
+
+.nodes text {
+    /*pointer-events: none;*/
+    font: 10px sans-serif;
+}
+

@@ -118,7 +118,7 @@ function submitJob(){
   els.forEach(function( elem){
     if(elem.getElementsByTagName("td")[0].getElementsByTagName("input")[0].checked){
       var nodeName = elem.getElementsByTagName("td")[1].getElementsByTagName("p")[0].innerHTML;
-      //var nodeNum = nodeName.replace(/.*\./, "");
+      var nodeNum = nodeName.replace(/.*\./, "");
       genOutputTextBoxes(hash, "contentView_script", nodeName);
     }
   });});
@@ -135,7 +135,7 @@ function genOutputTextBoxes(hash, dom_id, minion_name){
   var logsBoxes=[]
       // var DOM_table=createAppend("div",conView, [["float","left"],["width","30%"],["height","30%"]]);
       createAppend("p",conView).innerHTML="&lambda;<sub>" + 
-          minion_name.substr(minion_name.length - 1) + "</sub>"
+          minion_name.substr(9) + "</sub>"
               + "<sup>" + selectedScript + "</sup>";
       var DOM_Table=createAppend("table",conView);
       var tr=createAppend("tr",DOM_Table);

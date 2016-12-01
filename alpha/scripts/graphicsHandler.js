@@ -9,8 +9,8 @@ var node_names = new Set();
 var script_names = new Set();
 
 function addScriptToGraph(script_name, minion_name, hash){
-  var minion_number = minion_name.substr(minion_name.length - 1);
-  var new_script_name = script_name + "-m"+minion_number;
+  var minion_number = minion_name.substr(9);
+  var new_script_name = script_name + "-m."+minion_number;
   if(script_names.has(new_script_name)){
     var x = 1;
     var duplicate_script_name = new_script_name + "(" + x + ")";
@@ -190,10 +190,19 @@ d3.select(jq("r2c1_nodes"))
     //Using group ID to check if currently clicked and if previously clicked
     var real_id = d3.select(this).attr("id");
     var g_id_data = real_id.substr(real_id.length - 1);
-    var g_id = jq(d.id + "_g" + g_id_data);
+    var g_id;
     var t_id;
     var node_t;
-    node_g = d3.select(g_id);
+    var node_g 
+
+    if(d.program_hash != null){
+      node_g = d3.select(this);
+      g_id = node_g.attr("id");
+    }
+    else{
+      g_id = jq(d.id + "_g" + g_id_data);
+      node_g = d3.select(g_id);
+    }
 
     if(g_id_data != "2"){
       d.fx = d.x;
@@ -350,8 +359,8 @@ d3.select(jq("r2c1_nodes"))
 
   function removeNodeDataSVG(d){
     var tempid = d.id + "-svgtext";
-    tempid = jq(tempid);
-    var svgpointer = d3.select(tempid);
+    var addr = jq(tempid);
+    var svgpointer = d3.select(addr);
     svgpointer.remove();
     correctLocations(d.id);
   }
@@ -433,7 +442,8 @@ function groupToGreek(group){
 //Used to convert ids which contain symbols also used as CSS notation
 //Required for proper selection by unique DOM ID.
 function jq( myid ) {
-    return "#" + myid.replace( /(:|\.|\[|\]|,|=)/g, "\\$1" );
+    var temp = myid.replace(/\\/g, "");
+    return "#" + temp.replace( /(:|\.|\[|\]|,|\(|\)|=)/g, "\\$1" );
 }
 
 //CRITICAL COMPONENT DO NOT DELETE

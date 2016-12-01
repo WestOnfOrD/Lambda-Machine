@@ -77,12 +77,11 @@ function addLinkToGraph(source_name, target_name, link_type){
   node_list_d3.links.push({source: source_name, target: target_name, type_value: link_type});
 }
 
+var node_json_data;
 
 function buildForceGraph(){
 
   var node_text_svg = [];
-
-  var node_json_data;
 
   xhrGet("/nodes", function (xhr) {
     node_json_data=parseJSON(xhr.response); // got json object of nodes
@@ -124,7 +123,7 @@ function buildForceGraph(){
       .distance(function(d){
         return (link_distance / d.type_value);
       }))
-    .force("charge", d3.forceManyBody().strength(-90))
+    .force("charge", d3.forceManyBody().strength(-60))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide(radius_size));
 
@@ -257,8 +256,9 @@ var button_group = table_group.selectAll("tr")
               .style("display", "inline-block")
               .style("pointer-events", "none");
 
-            genOutputTextBoxes(d.program_hash, b_id, d.minion_name);
+            genOutputTextBoxes(d.program_hash, b_id, d.minion_name, d);
 
+            textbody.select("table").style("pointer-events", "auto");
             textbody.selectAll("textarea").style("pointer-events", "auto");
         }
         else{
@@ -274,8 +274,8 @@ var button_group = table_group.selectAll("tr")
       node_g.attr("id", d.id + "_g2");
     }
     else{
-      //d.fx = null;
-      //d.fy = null;
+      d.fx = null;
+      d.fy = null;
       d.fixed = false;
       dragended(d);
       //TEMP FOR TESTING
@@ -367,14 +367,14 @@ var button_group = table_group.selectAll("tr")
 
 
       bod.append("p")
-      //.style("font-family", "'Lucida Console', Monaco, monospace")
         .html(d.id);
 
+      bod.append("table").append("tr").append("tp")
+      //.style("font-family", "'Lucida Console', Monaco, monospace")
+        .html("info")
+        .style("color", "#fffaef");
+
     var tab = bod.append("table");
-      
-      tab.append("tr")
-        .append("td")
-        .html("info");
 
     var info_text = tab.append("tr")
           .append("td")
@@ -401,19 +401,8 @@ var button_group = table_group.selectAll("tr")
       .style("color", "#fffaef")
       .style("background-color", "rgba(28,28,28,.5")
       .style("pointer-events", "auto")
-      .html(output).append("textarea")
-      .attr("disabled", "undefined")
-      .style("color", "#fffaef")
-      .style("background-color", "rgba(28,28,28,.5")
-      .style("pointer-events", "auto")
-      .text("OH MY GOD THIS IS THE SECOND TEXT BOX WHAT IS GOING ON!?!?!?!?");
+      .html(output);
         
-  }
-
-  function getNodeJsonObject(d){
-    for(var i = 0, total_objects = node_json_data.length; i < total_objects; i++)
-      if(node_json_data[i].name == d.id)
-        return node_json_data[i];
   }
 
   function removeNodeDataSVG(d, elem){
@@ -472,6 +461,34 @@ var button_group = table_group.selectAll("tr")
       d3.select(this).select("text.hover").remove();
   }
 }
+
+function getNodeJsonObject(d){
+    for(var i = 0, total_objects = node_json_data.length; i < total_objects; i++)
+      if(node_json_data[i].name == d.id)
+        return node_json_data[i];
+  }
+
+  function getNodeInfoString(d){
+    var output = "Node ID: " + d.id + "\n";
+
+    var ref;
+
+    if(d.map != null){
+      ref = getNodeJsonObject(d);
+      for (var key in ref){
+      output += key +": " + ref[key] + "\n";
+      }
+    }
+    else{
+      ref = d;
+      for (var key in ref){
+        output += key + ": " + ref[key] + "\n";
+      }
+    }
+
+    return output;
+  }
+
 
 //Returns html entity for greek symbols corresponding to node group.
 function groupToGreek(group){

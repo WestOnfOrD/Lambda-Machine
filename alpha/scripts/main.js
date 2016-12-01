@@ -34,6 +34,7 @@ function contentView_script(fileName){
   _("Sending request for file content view");
   xhrGet("/codeScrolls/" + fileName, function(xhr){
     var contentView_script = $('contentView_script')
+    contentView_script.setAttribute("style", "color: #fffaef;")
     contentView_script.innerHTML = "<pre>" + xhr.response + "</pre>"
   });
   _("request for content view finished");
@@ -128,7 +129,7 @@ function submitJob(){
   }
 }
 // create output boxes for viewing script outputs
-function genOutputTextBoxes(hash, dom_id, minion_name){
+function genOutputTextBoxes(hash, dom_id, minion_name, d){
   var nodeNum = minion_name.replace(/.*\./, "");
   var curScript = selectedScript
   var conView = $(dom_id);
@@ -139,15 +140,65 @@ function genOutputTextBoxes(hash, dom_id, minion_name){
               + "<sup>" + selectedScript + "</sup>";
       var DOM_Table=createAppend("table",conView);
       var Output_Table = createAppend("table", conView);
+      Output_Table.setAttribute("id", dom_id + "-textbox");
+
       var tr=createAppend("tr",DOM_Table);
-      createAppend("td",tr).innerHTML="stdout";
-      createAppend("td",tr).innerHTML="stderr";
-      var tr=createAppend("tr",DOM_Table);
-      var td1=createAppend("td",tr);
-      var td2=createAppend("td",tr);
+      var td_out = document.createElement("td");
+      var td_err = document.createElement("td");
+      var td_info = document.createElement("td");
+
+      td_out.innerHTML = "out";
+      td_err.innerHTML = "err";
+      td_info.innerHTML = "info";
+
+      tr.appendChild(td_out);
+      tr.appendChild(td_err);
+      tr.appendChild(td_info);
+
+      td_out.style.color = "#fffaef";
+
+         
+          td_out.addEventListener("click", function(){
+            var table = Output_Table;
+            td_out.style.color = "#fffaef";
+            td_err.style.color = "#75715E";
+            td_info.style.color = "#75715E";
+            table.rows[0].style.display = "table-row";
+            table.rows[1].style.display = "none";
+            table.rows[2].style.display = "none";
+          });
+          
+          //td_err.style.display = "none";
+          td_err.addEventListener("click", function(){
+            var table = Output_Table;
+            td_out.style.color = "#75715E";
+            td_err.style.color = "#fffaef";
+            td_info.style.color = "#75715E";
+            table.rows[0].style.display = "none";
+            table.rows[1].style.display = "table-row";
+            table.rows[2].style.display = "none";
+          });
+        
+          //td_info.style.display = "none";
+          td_info.addEventListener("click", function(){
+            var table = Output_Table;
+            td_out.style.color = "#75715E";
+            td_err.style.color = "#75715E";
+            td_info.style.color = "#fffaef";
+            table.rows[0].style.display = "none";
+            table.rows[1].style.display = "none";
+            table.rows[2].style.display = "table-row";
+          });
+      var tr1=createAppend("tr",Output_Table);
+      var td1=createAppend("td",tr1);
+      var tr2=createAppend("tr",Output_Table);
+      var td2=createAppend("td",tr2);
+      var tr3=createAppend("tr",Output_Table);
+      var td3=createAppend("td",tr3);
 
       var DOM_logBoxStdout=createAppend("textarea",td1,[["disabled"],["style", "color: #fffaef; background-color: rgba(28,28,28,.5)"]]);
       var DOM_logBoxStderr=createAppend("textarea",td2,[["disabled"],["style", "color: #fffaef; background-color: rgba(28,28,28,.5);"]]);
+      var DOM_logBoxInfo  =createAppend("textarea",td3,[["disabled"],["style", "color: #fffaef; background-color: rgba(28,28,28,.5);"]]);
       // stdout
       var stdOutWorker = new Worker('scripts/databaseWorker.js');
       stdOutWorker.onmessage = function(e) {
@@ -160,6 +211,19 @@ function genOutputTextBoxes(hash, dom_id, minion_name){
         DOM_logBoxStderr.value+=e.data
       }
       stdErrWorker.postMessage([hash,nodeNum, "stderr"]);
+
+      if(d != null){
+        var output = getNodeInfoString(d);
+        DOM_logBoxInfo.value+=output;
+      }
+
+      Output_Table.rows[0].style.display = "table-row";
+      Output_Table.rows[1].style.display = "none";
+      Output_Table.rows[2].style.display = "none";
+
+      //td_out.setAttribute("id", dom_id+"-out");
+      //td_err.setAttribute("id", dom_id+"-err");
+      //td_info.setAttribute("id", dom_id+"-info");
 }
 // updates the heirarchy view with the scripts found in the python server's codescrolls directory
 function getScriptListing(){
@@ -203,6 +267,13 @@ function getScriptListing(){
         td1.appendChild(view);
         td2.appendChild(run );
         td3.appendChild(text);
+
+
+
+        /*function eyeClick(){
+          contentView_script(aList[i].innerHTML);
+          if(view.style.fill)
+        }*/
       }
       // _("Cleaning pre existing hierarchy tree")
       while (hierarchyTree.firstChild) {

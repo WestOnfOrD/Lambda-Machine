@@ -32,6 +32,8 @@ div{
 }
 .contentView{
     background-color: #272822;
+    color: #fffaef;
+    border: 1px solid #75715E;
     margin-left:auto;
     margin-right:auto;
     width: 100%;

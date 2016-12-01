@@ -221,11 +221,15 @@ function monitorNodeListing(){
     listing.forEach(function(element, index, array){
       if(global_set.has(element.name))
         comparison_set.add(element.name);
-      else
+      else{
         getNodeListing();
+        buildForceGraph();
+      }
     })
-    if (comparison_set.size != global_set.size)
+    if (comparison_set.size != global_set.size){
       getNodeListing();
+      buildForceGraph();
+    }
   });
 }
 // updates the heirarchy view with the nodes logged within elasticsearch database.
@@ -267,7 +271,19 @@ function getNodeListing(){
       var stat = document.createElement("div");
       // setup internal html elements
       let imgSize = "20px";
-      tr  .setAttribute("id", element.name + "-table0");
+
+
+
+
+
+      //tr.setAttribute("id", element.name + "-table0");
+      tr.setAttribute("id", element.name);
+
+
+
+
+
+
       text.setAttribute("style", "text-align: left;");
       view.setAttribute("style", "text-align : left;");
       view.setAttribute("src", "/res/view.png");
@@ -287,7 +303,7 @@ function getNodeListing(){
       stat.style.background="#1c1c1c";
 
       // text field
-      text.innerHTML = element.name;
+      //text.innerHTML = element.name;
       text.style.width="100%"
       //tr.setAttribute("onclick", "contentView_nodes('" + element.name + "-table0" + "')");
       td_view.appendChild(view);
@@ -303,6 +319,7 @@ function getNodeListing(){
     if(selectedNode){
       colorSelected($('r2c1_nodes'), $(selectedNode));
     }
+    buildForceGraph;
     _("Got new node listing");
     _(listing)
   });
@@ -314,7 +331,9 @@ function updatePage(page){
   pages.forEach(function(element, index, array){
     element.style.visibility= "hidden";
   });
-  if(page == "nodes")
-    bootleg_hack = buildForceGraph();
+  if(page == "nodes"){
+    //getNodeListing();
+    buildForceGraph();
+  }
   $(page).style.visibility= "visible";
 }

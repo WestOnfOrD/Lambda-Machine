@@ -148,11 +148,36 @@ function buildForceGraph(){
       .on("drag", dragged)
       .on("end", dragended));
 
-d3.select(jq("r2c1_nodes"))
-  .selectAll("tr")
-  .data(graph.nodes.filter(function(d){return d.program_hash == null;}))
+  //table_buttons.data(graph.nodes.filter(function(d){return d.id == table_buttons.attr("id");}))
+  //.data(graph.nodes.filter(function(d){return d.program_hash == null;}), function(d){return d.id})
   //.select(function(d){return jq(d.id + "-table0");})
-  .on("click", clicked);
+  //.attr("id", function(d){d.id + "-table0"})
+  //.data(graph.nodes.filter(function(d){return d.program_hash == null;}))
+/*var table_buttons = d3.select(jq("r2c1_nodes"))
+  .selectAll("tr")
+    .data(graph.nodes);
+
+    table_buttons
+    .attr("id", function(d){return d.id + "-table0"})
+    .on("click", clicked)
+    .select("div.circle").style("border", null);*/
+
+    function keymatch(d){
+      return d.id;
+    }
+
+var table_group = d3.select(jq("r2c1_nodes"));
+
+var button_group = table_group.selectAll("tr")
+    .data(graph.nodes);
+
+  button_group.data(graph.nodes, keymatch)
+    .on("click", clicked);
+
+  button_group.attr("id", function(d){return d.id + "-table0"}).select("div.circle").style("border", null);
+
+  button_group.select("p").text(function(d){return d.id;});
+
 
   node.append("circle")
     .attr("cx", 0)

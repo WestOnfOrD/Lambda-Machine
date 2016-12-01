@@ -102,6 +102,8 @@ function buildForceGraph(){
   var svg_height = height*.30;
 
   var svg_container = d3.select("div.contentView")
+    .style("overflow-x", "hidden")
+    .style("overlow", "hidden")
     .insert("svg")
     .attr("width", width)
     .attr("height", height)
@@ -233,8 +235,11 @@ var button_group = table_group.selectAll("tr")
       d.fx = d.x;
       d.fy = d.y;
       d.fixed = true;
-      node_g.select("circle").attr("stroke-width", "4.5px");
-      displayNodeDataSVG(d);
+      node_g.select("circle").attr("stroke-width", "3.5px");
+      //TEMP FOR TESTING
+      if(d.program_hash == null)
+        displayNodeDataSVG(d, node_g);
+      //TEMP FOR TESTING
       if (d.program_hash != null){
         if (g_id_data == "0"){
          
@@ -269,10 +274,14 @@ var button_group = table_group.selectAll("tr")
       node_g.attr("id", d.id + "_g2");
     }
     else{
-      d.fx = null;
-      d.fy = null;
+      //d.fx = null;
+      //d.fy = null;
       d.fixed = false;
-      removeNodeDataSVG(d);
+      dragended(d);
+      //TEMP FOR TESTING
+      if(d.program_hash == null)
+      removeNodeDataSVG(d, node_g);
+      //TEMP FOR TESTING
       node_g.select("circle").attr("stroke-width", "1.5px");
 
       if (d.program_hash != null)
@@ -324,56 +333,81 @@ var button_group = table_group.selectAll("tr")
   }
   } 
 
-  function displayNodeDataSVG(d){
-    var text_container = d3.select("div.contentView").append("svg")
-      .style("position", "absolute")
+  function displayNodeDataSVG(d, elem){
+    
+    var text_container = elem;
+    /*var text_container = elem.append("svg")
+      //.style("position", "absolute")
       .style("margin", "0")
       .style("pointer-events", "none")
       .attr("id", d.id + "-svgtext")
       .attr("width", svg_width)
       .attr("height", svg_height);
+      */
 
-    node_text_svg.push(d.id);
-    correctLocations(d.id, text_container);
+    //node_text_svg.push(d.id);
+    //correctLocations(d.id, text_container);
 
-    //Draws outline for display
-    text_container.append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("height", "100%")
-      .attr("width", "100%")
-      .style("stroke", "#75715E")
-      .style("fill", "none")
-      .style("stroke-width", "1");
 
     var fo = text_container.append("foreignObject")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("id", d.id + "-svgtext")
+      .attr("x", radius_size)
+      .attr("y", -2.5*radius_size);
 
-    var bod = fo.append("xhtml:body")
+    var bod = fo.append("xhtml:body");
+      /*.style("font-family", "'Lucida Console', Monaco, monospace")
       .style("font-size", "10px")
-      .style("color", "rgb(255, 250, 239)");
+      .style("color", "rgb(255, 250, 239)");*/
 
-    var output = "Node ID: " + d.id + "<br/>";
+      bod.on("click", function(){d3.event.stopPropagation();})
+              .call(d3.drag()).on("start", function(){d3.event.stopPropagation();})
+              .style("display", "inline-block")
+              .style("pointer-events", "none");
+
+
+
+      bod.append("p")
+      //.style("font-family", "'Lucida Console', Monaco, monospace")
+        .html(d.id);
+
+    var tab = bod.append("table");
+      
+      tab.append("tr")
+        .append("td")
+        .html("info");
+
+    var info_text = tab.append("tr")
+          .append("td")
+
+    var output = "Node ID: " + d.id + "\n";
 
     var ref;
 
     if(d.map != null){
       ref = getNodeJsonObject(d);
       for (var key in ref){
-      output += key +": " + ref[key] + "<br/>";
+      output += key +": " + ref[key] + "\n";
       }
     }
     else{
       ref = d;
       for (var key in ref){
-        output += key + ": " + ref[key] + "<br/>";
+        output += key + ": " + ref[key] + "\n";
       }
 
     }
-    bod.html(output);
+    info_text.append("textarea")
+      .attr("disabled", "undefined")
+      .style("color", "#fffaef")
+      .style("background-color", "rgba(28,28,28,.5")
+      .style("pointer-events", "auto")
+      .html(output).append("textarea")
+      .attr("disabled", "undefined")
+      .style("color", "#fffaef")
+      .style("background-color", "rgba(28,28,28,.5")
+      .style("pointer-events", "auto")
+      .text("OH MY GOD THIS IS THE SECOND TEXT BOX WHAT IS GOING ON!?!?!?!?");
+        
   }
 
   function getNodeJsonObject(d){
@@ -382,12 +416,13 @@ var button_group = table_group.selectAll("tr")
         return node_json_data[i];
   }
 
-  function removeNodeDataSVG(d){
+  function removeNodeDataSVG(d, elem){
     var tempid = d.id + "-svgtext";
     var addr = jq(tempid);
-    var svgpointer = d3.select(addr);
+    var svgpointer = elem.select(addr);
+    //svgpointer.selectAll("*").remove();
     svgpointer.remove();
-    correctLocations(d.id);
+    //correctLocations(d.id);
   }
 
   //Determines and sets proper (x,y) starting position for 

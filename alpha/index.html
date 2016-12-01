@@ -14,16 +14,17 @@
   <div id="r1">
     <table id="menuTable">
       <tr>
-        <td>
-          <div class="menuButton" style="border-style: none;max-height:10av;"> <!-- logo -->
-            <!-- <img src="res/logo.png" alt="logo" style="max-width:100%;max-height:100%;"> -->
+        <!--<td>
+          <div class="menuButton" style="border-style: none;max-height:10av;"> 
+          logo 
+            <img src="res/logo.png" alt="logo" style="max-width:100%;max-height:100%;">
           </div>
-        </td>
-        <td><button class="menuButton" type="button" onclick="updatePage('scripts')">Scripts</button></td>
-        <td><button class="menuButton" type="button" onclick="updatePage('nodes')">Nodes</button></td>
-        <td><button class="menuButton" type="button" onclick="updatePage('progs')">Progs</button></td>
+        </td>-->
+        <td valign="bottom"><button class="menuButton" type="button" onclick="updatePage('scripts')">Scripts</button></td>
+        <td valign="bottom"><button class="menuButton" type="button" onclick="updatePage('nodes')">Nodes</button></td>
+        <!--<td><button class="menuButton" type="button" onclick="updatePage('progs')">Progs</button></td>
         <td><button class="menuButton" type="button" onclick="updatePage('data')">Data</button></td>
-        <td><button class="menuButton" type="button" onclick="updatePage('debug')">Debug</button></td>
+        <td><button class="menuButton" type="button" onclick="updatePage('debug')">Debug</button></td>-->
       </tr>
     </table>
   </div>
@@ -37,7 +38,7 @@
         <p style='text-align:center'>Node Listing will appear here.</p>
       </div>
       <div id="r2c2_nodes" class="r2c2">
-        <div id="contentView_nodes" class="contentView">
+        <div id="contentView_nodes" class="contentView" style="overflow: hidden;">
         </div>
       </div>
     </div>

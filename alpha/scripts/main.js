@@ -138,6 +138,7 @@ function genOutputTextBoxes(hash, dom_id, minion_name){
           minion_name.substr(9) + "</sub>"
               + "<sup>" + selectedScript + "</sup>";
       var DOM_Table=createAppend("table",conView);
+      var Output_Table = createAppend("table", conView);
       var tr=createAppend("tr",DOM_Table);
       createAppend("td",tr).innerHTML="stdout";
       createAppend("td",tr).innerHTML="stderr";
@@ -271,19 +272,7 @@ function getNodeListing(){
       var stat = document.createElement("div");
       // setup internal html elements
       let imgSize = "20px";
-
-
-
-
-
-      //tr.setAttribute("id", element.name + "-table0");
       tr.setAttribute("id", element.name);
-
-
-
-
-
-
       text.setAttribute("style", "text-align: left;");
       view.setAttribute("style", "text-align : left;");
       view.setAttribute("src", "/res/view.png");

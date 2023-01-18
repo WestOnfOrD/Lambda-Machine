@@ -1,5 +1,3 @@
-Copyright (C) 2016 Derek Maier
-
 === Project Info
 Initiated : 6  July 2016
 Revised   : 20 Nov  2016
@@ -9,10 +7,9 @@ Production Team        : Monolith
 Project Title          : (λ) Machine
                        : Lambda-Machine
 
-Unique lines of source code : 1514
-
 === Team
 Development            : Derek Maier
+                       : Weston Ford
 Documentation          : David Nelson
                        : Weston Ford
 
